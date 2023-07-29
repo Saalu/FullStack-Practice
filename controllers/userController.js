@@ -32,7 +32,7 @@ register: async(req,res) => {
 },
 
 login:async(req,res)=>{
-    const {email,password} = req.body
+    const {username,email,password} = req.body
     try {
     const user = await User.findOne({email})
 
@@ -45,7 +45,7 @@ login:async(req,res)=>{
 
    res.cookie('token',token, {httpOnly:true})
 
-    res.json({token})
+    res.json({msg: `${user.username}, Logged In`})
         
     } catch (err) {
         return res.status(500).json(err.message)
@@ -66,6 +66,16 @@ try {
 } catch (err) {
     return res.status(500).json({msg: err.message})
 }
+},
+logout: async(req,res) => {
+    try {
+
+        res.cookie('token', '',{ expires: new Date(0) })
+        
+        res.json({msg: 'Logged out successfully'})
+    } catch (err) {
+        return res.status(500).json({msg: err.message})
+    }
 }
 }
 export default userCtrl
