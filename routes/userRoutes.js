@@ -1,37 +1,19 @@
 import express from 'express'
-import User from '../models/userModels.js'
-import {hash,compare} from 'bcrypt'
+
+import userCtrl from '../controllers/userController.js'
 
 const router = express.Router()
 
 router
 .route('/')
-.get((req,res)=>{
-    res.send('Welcome home router')
-})
-.post(async(req,res)=>{
-    const {username,email,password} = req.body
-    try {
-    const user = await User.findOne({email})
-
-    if(user)  res.json({msg: 'User already exist'})
-
-    const hashedPass = await hash(password,10)
-    const newUser = new User({
-        username,
-        email,
-        password:hashedPass
-    })
-
-    const savedUser = await newUser.save()
-
-    res.json(savedUser)
-        
-    } catch (err) {
-        return res.status(500).json(err.message)
-    }
-})
-
+.get(userCtrl.getHome)
+router.post('/login',userCtrl.login)
+router.post('/register',userCtrl.register)
+router.get('/protected', userCtrl.verifyToken, (req, res) => {
+    // Access the user data from the request object (added by the verifyToken middleware)
+    const user = req.user;
+    res.json({ message: 'Protected resource accessed successfully!', user });
+  });
 
 
 export default router
